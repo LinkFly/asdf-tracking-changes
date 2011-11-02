@@ -1,0 +1,57 @@
+ASDF-TRACKING-CHANGES.
+Расширение ASDF для отслеживания изменений.
+
+Проект реализован пока, только как "проверка концепции" (proof-of-concept).
+
+Это расширение позволяет отслеживать какие произошли изменения в лисп-системе 
+при компиляции и загрузке кода. Пока поддерживается только отслеживание новых
+пакетов. 
+
+Зависимости:
+tracking-changes - https://github.com/LinkFly/tracking-changes
+
+Использование:
+
+1. Добавление путей для ASDF:
+
+(push "/путь_к_tracking-changes/" asdf:*central-registry*)
+(push "/путь_к_asdf-tracking-changes/" asdf:*central-registry*)
+
+2. В вашем определении системы добавьте :asdf-tracking-changes к списку в опции :defsystem-depends-on :
+
+(defsystem <имя_вашей_системы>  	   
+  :defsystem-depends-on (:asdf-tracking-changes)
+  ...
+  :components ...)
+
+3. Загрузите вашу систему стандартным способом через: 
+
+(asdf:load-system <имя_вашей_системы>)
+
+4. Теперь вы можете узнать какие произошли изменения 
+(на данный момент только - какие появились новые пакеты)
+при загрузке/компиляции тех или иных файлов двумя способами:
+
+    а) Передав абсолютный путь к исходному файлу (в этом случае,
+желательно указать имя системы, иначе будет производится поиск
+по всем отслеживаемым системам, список которых надо будет ещё
+установить):
+
+    (asdf-tracking-changes:get-provided-packages
+      (asdf-tracking-changes:resolve-src-component
+        "/absolute/path/to/file.lisp" "your-system"))
+
+    -> (#<PACKAGE "YOUR-PACKAGE">) ;;если пакет YOUR-PACKAGE определялся в файле
+
+    б) Передав путь в иерархии компонентов ASDF, например:
+
+     (asdf-tracking-changes:get-provided-packages
+       (asdf-tracking-changes:resolve-src-component
+        '("your-system" "src" "your-file")))
+
+    -> (#<PACKAGE "YOUR-PACKAGE">) ;;если пакет YOUR-PACKAGE определялся в файле
+
+5. Пример использования смотрите в директории test.
+
+
+           
